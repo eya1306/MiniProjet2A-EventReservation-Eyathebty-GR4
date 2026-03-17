@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Réservations · EventReserve{% endblock %}
+
+{% block body %}
+<div class="container" style="padding: 2rem 1rem; max-width: 900px; margin: 0 auto;">
+    <h1 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 1.5rem;">🎟️ Mes Réservations</h1>
+
+    {% if reservations is empty %}
+        <div style="text-align: center; padding: 4rem 2rem; background: var(--card-bg, #f9f9f9); border-radius: 12px;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📭</div>
+            <h2 style="margin-bottom: 0.5rem;">Aucune réservation</h2>
+            <p style="color: #666; margin-bottom: 1.5rem;">Vous n'avez pas encore réservé d'événement.</p>
+            <a href="{{ path('app_events_index') }}" class="btn btn-primary">Voir les événements</a>
+        </div>
+    {% else %}
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            {% for reservation in reservations %}
+                <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h3 style="margin: 0 0 0.4rem; font-size: 1.1rem; font-weight: 600;">
+                            {{ reservation.event.title }}
+                        </h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; color: #555; font-size: 0.9rem;">
+                            <span>📅 {{ reservation.event.date | date('d/m/Y à H:i') }}</span>
+                            <span>📍 {{ reservation.event.location }}</span>
+                            <span>👤 {{ reservation.name }}</span>
+                            <span>📧 {{ reservation.email }}</span>
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #999;">
+                            Réservé le {{ reservation.createdAt | date('d/m/Y H:i') }}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: center; flex-shrink: 0;">
+                        <a href="{{ path('app_events_show', {id: reservation.event.id}) }}"
+                           style="background: #f0f4ff; color: #4f6ef7; border: none; padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; font-size: 0.9rem; font-weight: 500;">
+                            Voir l'événement
+                        </a>
+                        <form method="post" action="{{ path('app_reservation_cancel', {id: reservation.id}) }}"
+                              onsubmit="return confirm('Annuler cette réservation ?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('cancel_reservation_' ~ reservation.id) }}">
+                            <button type="submit"
+                                    style="background: #fff0f0; color: #e53e3e; border: 1px solid #fed7d7; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 500;">
+                                ❌ Annuler
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

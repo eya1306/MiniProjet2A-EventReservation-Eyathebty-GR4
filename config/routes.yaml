@@ -1,0 +1,18 @@
+app_homepage:
+    path: /
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults:
+        route: app_events_index
+        permanent: true
+
+controllers:
+    resource:
+        path: ../src/Controller/
+        namespace: App\Controller
+    type: attribute
+
+admin_controllers:
+    resource:
+        path: ../src/Controller/Admin/
+        namespace: App\Controller\Admin
+    type: attribute

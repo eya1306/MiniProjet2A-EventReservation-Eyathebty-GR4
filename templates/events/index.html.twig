@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Événements · EventReserve{% endblock %}
+{% block description %}Découvrez et réservez les meilleurs événements près de chez vous{% endblock %}
+
+{% block body %}
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>🎟️ Découvrez nos événements</h1>
+        <p>Trouvez l'événement qui vous correspond et réservez votre place en quelques secondes.</p>
+    </div>
+</section>
+
+<!-- Events grid -->
+<section class="events-section">
+    <div class="container">
+        {% if events is empty %}
+            <div class="empty-state">
+                <span class="empty-icon">📭</span>
+                <h2>Aucun événement disponible</h2>
+                <p>Revenez bientôt, de nouveaux événements seront ajoutés !</p>
+            </div>
+        {% else %}
+            <div class="events-grid">
+                {% for event in events %}
+                <article class="event-card">
+                    <div class="event-img-wrapper">
+                        {% if event.image %}
+                            <img src="{{ asset('uploads/events/' ~ event.image) }}"
+                                 alt="{{ event.title }}" class="event-img" loading="lazy">
+                        {% else %}
+                            <div class="event-img-placeholder">🎪</div>
+                        {% endif %}
+                        {% if event.availableSeats <= 5 and event.availableSeats > 0 %}
+                            <span class="badge badge-warning">Plus que {{ event.availableSeats }} places !</span>
+                        {% elseif event.availableSeats <= 0 %}
+                            <span class="badge badge-danger">Complet</span>
+                        {% endif %}
+                    </div>
+                    <div class="event-body">
+                        <div class="event-meta">
+                            <span class="event-date">📅 {{ event.date | date('d/m/Y H:i') }}</span>
+                            <span class="event-location">📍 {{ event.location }}</span>
+                        </div>
+                        <h2 class="event-title">{{ event.title }}</h2>
+                        <p class="event-desc">{{ event.description | slice(0, 120) }}{% if event.description|length > 120 %}…{% endif %}</p>
+                        <div class="event-footer">
+                            <span class="event-seats">
+                                🪑 {{ event.availableSeats }} / {{ event.seats }} places
+                            </span>
+                            <a href="{{ path('app_events_show', {id: event.id}) }}"
+                               class="btn btn-primary btn-sm">Voir détails</a>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

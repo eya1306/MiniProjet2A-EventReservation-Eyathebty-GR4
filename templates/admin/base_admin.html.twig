@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin · EventReserve{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+</head>
+<body class="admin-body">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <span>🎟️</span> Admin Panel
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ path('admin_dashboard') }}" class="sidebar-link {% if app.request.attributes.get('_route') == 'admin_dashboard' %}active{% endif %}">
+                📊 Tableau de bord
+            </a>
+            <a href="{{ path('admin_event_create') }}" class="sidebar-link {% if app.request.attributes.get('_route') == 'admin_event_create' %}active{% endif %}">
+                ➕ Créer un événement
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <span class="sidebar-user">👤 {{ app.user ? app.user.userIdentifier : 'Admin' }}</span>
+            <a href="{{ path('admin_logout') }}" class="sidebar-logout">🚪 Déconnexion</a>
+        </div>
+    </aside>
+
+    <!-- Main content -->
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+        </header>
+
+        <!-- Flash messages -->
+        <div class="admin-flashes">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="flash flash-{{ label }}">{{ message }}
+                        <button onclick="this.parentElement.remove()">✕</button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+
+        <div class="admin-content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

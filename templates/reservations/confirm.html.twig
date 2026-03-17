@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réservation confirmée · EventReserve{% endblock %}
+
+{% block body %}
+<div class="container confirm-page">
+    <div class="confirm-card">
+        <div class="confirm-icon">🎉</div>
+        <h1>Réservation confirmée !</h1>
+        <p class="confirm-subtitle">Votre place a été réservée avec succès. Nous avons hâte de vous accueillir !</p>
+
+        <div class="confirm-details">
+            <div class="confirm-row">
+                <span class="confirm-label">🎪 Événement</span>
+                <span class="confirm-value">{{ reservation.event.title }}</span>
+            </div>
+            <div class="confirm-row">
+                <span class="confirm-label">📅 Date</span>
+                <span class="confirm-value">{{ reservation.event.date | date('d/m/Y à H:i') }}</span>
+            </div>
+            <div class="confirm-row">
+                <span class="confirm-label">📍 Lieu</span>
+                <span class="confirm-value">{{ reservation.event.location }}</span>
+            </div>
+            <div class="confirm-row">
+                <span class="confirm-label">👤 Nom</span>
+                <span class="confirm-value">{{ reservation.name }}</span>
+            </div>
+            <div class="confirm-row">
+                <span class="confirm-label">📧 Email</span>
+                <span class="confirm-value">{{ reservation.email }}</span>
+            </div>
+            <div class="confirm-row">
+                <span class="confirm-label">📞 Téléphone</span>
+                <span class="confirm-value">{{ reservation.phone }}</span>
+            </div>
+            <div class="confirm-row">
+                <span class="confirm-label">🗓️ Réservé le</span>
+                <span class="confirm-value">{{ reservation.createdAt | date('d/m/Y H:i') }}</span>
+            </div>
+        </div>
+
+        <div class="confirm-actions">
+            <a href="{{ path('app_events_index') }}" class="btn btn-primary">Voir d'autres événements</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

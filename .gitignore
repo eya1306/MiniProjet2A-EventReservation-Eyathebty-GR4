@@ -1,0 +1,8 @@
+/vendor/
+/var/
+/public/bundles/
+.env.local
+.env.*.local
+/config/jwt/
+/node_modules/
+/.phpunit.result.cache

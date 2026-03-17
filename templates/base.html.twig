@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EventReserve{% endblock %}</title>
+    <meta name="description" content="{% block description %}Réservez vos places pour les meilleurs événements{% endblock %}">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ path('app_events_index') }}" class="nav-brand">
+                <span class="brand-icon">🎟️</span>
+                <span>EventReserve</span>
+            </a>
+            <div class="nav-links">
+                <a href="{{ path('app_events_index') }}" class="nav-link {% if app.request.attributes.get('_route') starts with 'app_events' %}active{% endif %}">Événements</a>
+                {% if app.user %}
+                    <a href="{{ path('app_my_reservations') }}"
+                       class="nav-link {% if app.request.attributes.get('_route') == 'app_my_reservations' %}active{% endif %}">
+                        🎟️ Mes Réservations
+                    </a>
+                    <span class="nav-user">👤 {{ app.user.userIdentifier }}</span>
+                    <a href="{{ path('app_logout') }}" class="nav-btn btn-outline">Déconnexion</a>
+                {% else %}
+                    <a href="{{ path('app_login') }}" class="nav-link">Connexion</a>
+                    <a href="{{ path('app_register') }}" class="nav-btn btn-primary">S'inscrire</a>
+                {% endif %}
+            </div>
+            <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+        </div>
+    </nav>
+
+    <!-- Flash messages -->
+    <div class="flash-container">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="flash flash-{{ label }}">
+                    {{ message }}
+                    <button class="flash-close" onclick="this.parentElement.remove()">✕</button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <!-- Main content -->
+    <main>
+        {% block body %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p>© 2026 EventReserve · ISSAT Sousse · FIA3-GL</p>
+        </div>
+    </footer>
+
+    <script src="{{ asset('js/app.js') }}"></script>
+    {% block javascripts %}{% endblock %}
+
+    <script>
+        // Mobile nav toggle
+        document.getElementById('navToggle')?.addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('open');
+        });
+        // Auto-dismiss flashes after 5s
+        setTimeout(() => {
+            document.querySelectorAll('.flash').forEach(el => el.remove());
+        }, 5000);
+    </script>
+</body>
+</html>

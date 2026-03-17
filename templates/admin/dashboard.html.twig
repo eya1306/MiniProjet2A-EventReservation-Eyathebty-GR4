@@ -1,0 +1,86 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Tableau de bord · Admin · EventReserve{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="admin-stats">
+    <div class="stat-card">
+        <span class="stat-icon">🎪</span>
+        <div class="stat-info">
+            <span class="stat-number">{{ events|length }}</span>
+            <span class="stat-label">Événements</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <span class="stat-icon">🎟️</span>
+        <div class="stat-info">
+            <span class="stat-number">{{ totalReservations }}</span>
+            <span class="stat-label">Réservations totales</span>
+        </div>
+    </div>
+</div>
+
+<!-- Events table -->
+<div class="admin-section">
+    <div class="admin-section-header">
+        <h2>Événements</h2>
+        <a href="{{ path('admin_event_create') }}" class="btn btn-primary btn-sm">➕ Nouvel événement</a>
+    </div>
+
+    {% if events is empty %}
+        <div class="empty-state">
+            <p>Aucun événement. <a href="{{ path('admin_event_create') }}">Créer le premier !</a></p>
+        </div>
+    {% else %}
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Titre</th>
+                        <th>Date</th>
+                        <th>Lieu</th>
+                        <th>Places</th>
+                        <th>Réservations</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                    <tr>
+                        <td class="td-title">
+                            {% if event.image %}
+                                <img src="{{ asset('uploads/events/' ~ event.image) }}"
+                                     class="table-thumb" alt="">
+                            {% endif %}
+                            {{ event.title }}
+                        </td>
+                        <td>{{ event.date | date('d/m/Y H:i') }}</td>
+                        <td>{{ event.location }}</td>
+                        <td>
+                            <span class="seats-badge {% if event.availableSeats <= 0 %}badge-danger{% elseif event.availableSeats <= 5 %}badge-warning{% else %}badge-success{% endif %}">
+                                {{ event.availableSeats }}/{{ event.seats }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ path('admin_event_reservations', {id: event.id}) }}" class="btn btn-outline btn-xs">
+                                Voir ({{ event.reservations|length }})
+                            </a>
+                        </td>
+                        <td class="td-actions">
+                            <a href="{{ path('admin_event_edit', {id: event.id}) }}" class="btn btn-sm btn-outline">✏️ Modifier</a>
+                            <form method="post" action="{{ path('admin_event_delete', {id: event.id}) }}"
+                                  onsubmit="return confirm('Supprimer cet événement ?')" style="display:inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
+                                <button type="submit" class="btn btn-sm btn-danger">🗑️ Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

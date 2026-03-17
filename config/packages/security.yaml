@@ -1,0 +1,87 @@
+security:
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: username
+        admin_provider:
+            entity:
+                class: App\Entity\Admin
+                property: username
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        # ── API auth firewall ────────────────────────────────────────────────
+        auth_api:
+            pattern: ^/api/auth/(register|login)
+            stateless: true
+            security: false
+
+        # ── API firewall (stateless JWT) ─────────────────────────────────────
+        api_login:
+            pattern: ^/api/login$
+            stateless: true
+            security: false
+
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: app_user_provider
+            entry_point: jwt
+            jwt: ~
+            refresh_jwt:
+                check_path: /api/token/refresh
+
+        # ── Admin firewall ───────────────────────────────────────────────────
+        admin:
+            pattern: ^/admin
+            lazy: true
+            provider: admin_provider
+            form_login:
+                login_path: admin_login
+                check_path: admin_login
+                default_target_path: admin_dashboard
+                username_parameter: username
+                password_parameter: password
+            logout:
+                path: admin_logout
+                target: admin_login
+
+        # ── Main user firewall ───────────────────────────────────────────────
+        main:
+            lazy: true
+            provider: app_user_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                default_target_path: app_events_index
+                username_parameter: username
+                password_parameter: password
+            logout:
+                path: app_logout
+                target: app_login
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800   # 1 week
+
+    access_control:
+        # Public API routes
+        - { path: ^/api/auth/(register|login), roles: PUBLIC_ACCESS }
+        - { path: ^/api/login$,         roles: PUBLIC_ACCESS }
+        - { path: ^/api/token/refresh,  roles: PUBLIC_ACCESS }
+        # Admin area
+        - { path: ^/admin/login,        roles: PUBLIC_ACCESS }
+        - { path: ^/admin,              roles: ROLE_ADMIN }
+        # User area — events browsing is public, reservation requires login
+        - { path: ^/login,              roles: PUBLIC_ACCESS }
+        - { path: ^/register,           roles: PUBLIC_ACCESS }
+        - { path: ^/auth/passkey-session, roles: PUBLIC_ACCESS }
+        - { path: ^/events/\d+/reserve, roles: ROLE_USER }
+        - { path: ^/events,             roles: PUBLIC_ACCESS }
+        - { path: ^/,                   roles: PUBLIC_ACCESS }

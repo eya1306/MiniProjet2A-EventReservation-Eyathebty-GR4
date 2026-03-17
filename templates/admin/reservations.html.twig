@@ -1,0 +1,48 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Réservations — {{ event.title }} · Admin{% endblock %}
+{% block page_title %}Réservations · {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="admin-section">
+    <div class="admin-section-header">
+        <div>
+            <p>📅 {{ event.date | date('d/m/Y H:i') }} · 📍 {{ event.location }}</p>
+            <p>🪑 {{ event.availableSeats }} / {{ event.seats }} places disponibles</p>
+        </div>
+        <a href="{{ path('admin_dashboard') }}" class="btn btn-outline btn-sm">← Retour</a>
+    </div>
+
+    {% if reservations is empty %}
+        <div class="empty-state">
+            <p>Aucune réservation pour cet événement.</p>
+        </div>
+    {% else %}
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Date de réservation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reservation in reservations %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ reservation.name }}</td>
+                        <td><a href="mailto:{{ reservation.email }}">{{ reservation.email }}</a></td>
+                        <td>{{ reservation.phone }}</td>
+                        <td>{{ reservation.createdAt | date('d/m/Y H:i') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="table-total">Total : {{ reservations|length }} réservation(s)</p>
+    {% endif %}
+</div>
+{% endblock %}

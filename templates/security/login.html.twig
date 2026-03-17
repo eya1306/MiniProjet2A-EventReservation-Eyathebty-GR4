@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion · EventReserve{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>🔑 Connexion</h1>
+            <p>Bienvenue ! Connectez-vous pour réserver vos événements.</p>
+        </div>
+
+        {% if error %}
+            <div class="alert alert-error">{{ error.messageKey | trans(error.messageData, 'security') }}</div>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_login') }}" class="auth-form">
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur</label>
+                <input type="text" id="username" name="username"
+                       value="{{ last_username }}" required autofocus
+                       class="form-input" placeholder="Votre identifiant">
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password"
+                       required class="form-input" placeholder="••••••••">
+            </div>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <button type="submit" class="btn btn-primary btn-full">Se connecter</button>
+        </form>
+
+        <!-- Passkey login button -->
+        <div class="auth-divider"><span>ou</span></div>
+        <button id="passkeyLoginBtn" class="btn btn-passkey btn-full" type="button">
+            🔐 Se connecter avec une Passkey
+        </button>
+        <div id="passkeyStatus" class="passkey-status" style="display:none"></div>
+
+        <div class="auth-footer">
+            Pas encore de compte ? <a href="{{ path('app_register') }}">S'inscrire</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="{{ asset('js/auth.js') }}"></script>
+<script>
+    document.getElementById('passkeyLoginBtn')?.addEventListener('click', async () => {
+        const btn = document.getElementById('passkeyLoginBtn');
+        const status = document.getElementById('passkeyStatus');
+        btn.disabled = true;
+        status.style.display = 'block';
+        status.textContent = '🔐 Lecture de votre passkey...';
+        try {
+            const result = await loginWithPasskey();
+            status.textContent = '✅ Authentifié ! Connexion en cours...';
+            // Bridge the JWT token into a Symfony session so the web firewall knows the user
+            if (result.token) {
+                const sessionRes = await fetch('/auth/passkey-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: result.token })
+                });
+                
+                if (!sessionRes.ok) {
+                    const err = await sessionRes.json();
+                    throw new Error("Bridge Session Failed: " + JSON.stringify(err));
+                }
+            }
+            window.location.href = '/events';
+        } catch(e) {
+            status.textContent = '❌ ' + (e.message || String(e));
+            btn.disabled = false;
+        }
+    });
+</script>
+{% endblock %}

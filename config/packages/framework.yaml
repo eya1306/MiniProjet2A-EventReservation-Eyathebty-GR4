@@ -1,0 +1,27 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+    http_method_override: true
+    handle_all_throwables: true
+
+    # Enables session for form-based auth
+    session:
+        handler_id: null
+        cookie_secure: auto
+        cookie_samesite: lax
+        storage_factory_id: session.storage.factory.native
+
+    # Form / CSRF
+    csrf_protection: true
+
+    # PHP files cache
+    php_errors:
+        log: true
+
+    assets:
+        enabled: true
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file

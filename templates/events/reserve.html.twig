@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réservation — {{ event.title }} · EventReserve{% endblock %}
+
+{% block body %}
+<div class="container reserve-page">
+    <div class="reserve-card">
+        <!-- Event summary -->
+        <div class="reserve-event-summary">
+            {% if event.image %}
+                <img src="{{ asset('uploads/events/' ~ event.image) }}"
+                     alt="{{ event.title }}" class="reserve-event-img">
+            {% else %}
+                <div class="reserve-img-placeholder">🎪</div>
+            {% endif %}
+            <div class="reserve-event-info">
+                <h2>{{ event.title }}</h2>
+                <p>📅 {{ event.date | date('d/m/Y H:i') }}</p>
+                <p>📍 {{ event.location }}</p>
+                <p>🪑 {{ event.availableSeats }} places restantes</p>
+            </div>
+        </div>
+
+        <div class="reserve-divider"></div>
+
+        <!-- Reservation form -->
+        <div class="reserve-form-section">
+            <h1>🎟️ Confirmer votre réservation</h1>
+            <p class="reserve-subtitle">Remplissez vos informations pour valider votre place.</p>
+
+            {% if error %}
+                <div class="alert alert-error">{{ error }}</div>
+            {% endif %}
+
+            <form method="post" action="{{ path('app_events_reserve', {id: event.id}) }}" class="reserve-form">
+                <div class="form-group">
+                    <label for="name">Nom complet</label>
+                    <input type="text" id="name" name="name" required
+                           class="form-input" placeholder="Jean Dupont"
+                           value="{{ app.user ? app.user.username : '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="email">Adresse email</label>
+                    <input type="email" id="email" name="email" required
+                           class="form-input" placeholder="jean.dupont@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Téléphone</label>
+                    <input type="tel" id="phone" name="phone" required
+                           class="form-input" placeholder="+216 XX XXX XXX">
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ path('app_events_show', {id: event.id}) }}" class="btn btn-outline">Annuler</a>
+                    <button type="submit" class="btn btn-primary">✅ Confirmer la réservation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

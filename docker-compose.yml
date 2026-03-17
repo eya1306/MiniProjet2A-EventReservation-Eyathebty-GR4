@@ -1,0 +1,94 @@
+services:
+  # PHP-FPM (Symfony application)
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: event_reservation_php
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-dev}
+      APP_DEBUG: ${APP_DEBUG:-1}
+      APP_SECRET: ${APP_SECRET:-change_me_in_production}
+      DATABASE_URL: postgresql://app_user:app_password@db:5432/event_reservation?serverVersion=15&charset=utf8
+      JWT_SECRET_KEY: /var/www/config/jwt/private.pem
+      JWT_PUBLIC_KEY: /var/www/config/jwt/public.pem
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE:-change_me_in_production}
+      JWT_TOKEN_TTL: 3600
+      APP_DOMAIN: ${APP_DOMAIN:-localhost}
+      WEBAUTHN_RP_NAME: "Event Reservation App"
+    volumes:
+      - .:/var/www
+      - ./config/jwt:/var/www/config/jwt:ro
+      - ./public/uploads:/var/www/public/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  # Nginx web server
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: event_reservation_nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./public:/var/www/public:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - php
+    networks:
+      - app_network
+
+  # PostgreSQL database
+  db:
+    image: postgres:15-alpine
+    container_name: event_reservation_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: event_reservation
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: app_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app_user -d event_reservation"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+###> doctrine/doctrine-bundle ###
+  database:
+    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      # You should definitely change the password in production
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-app}", "-U", "${POSTGRES_USER:-app}"]
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    volumes:
+      - database_data:/var/lib/postgresql/data:rw
+      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      # - ./docker/db/data:/var/lib/postgresql/data:rw
+###< doctrine/doctrine-bundle ###
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
+###> doctrine/doctrine-bundle ###
+  database_data:
+###< doctrine/doctrine-bundle ###

@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ event.title }} · EventReserve{% endblock %}
+{% block description %}{{ event.description|slice(0,160) }}{% endblock %}
+
+{% block body %}
+<div class="container event-detail-page">
+    <a href="{{ path('app_events_index') }}" class="back-link">← Retour aux événements</a>
+
+    <div class="event-detail-card">
+        <!-- Image -->
+        <div class="event-detail-img-wrapper">
+            {% if event.image %}
+                <img src="{{ asset('uploads/events/' ~ event.image) }}"
+                     alt="{{ event.title }}" class="event-detail-img">
+            {% else %}
+                <div class="event-detail-img-placeholder">🎪</div>
+            {% endif %}
+        </div>
+
+        <!-- Info -->
+        <div class="event-detail-info">
+            <h1 class="event-detail-title">{{ event.title }}</h1>
+
+            <div class="event-detail-meta">
+                <div class="meta-item">
+                    <span class="meta-icon">📅</span>
+                    <div>
+                        <strong>Date & Heure</strong>
+                        <span>{{ event.date | date('d/m/Y à H:i') }}</span>
+                    </div>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-icon">📍</span>
+                    <div>
+                        <strong>Lieu</strong>
+                        <span>{{ event.location }}</span>
+                    </div>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-icon">🪑</span>
+                    <div>
+                        <strong>Places disponibles</strong>
+                        <span>{{ event.availableSeats }} / {{ event.seats }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="event-description">
+                <h2>À propos de cet événement</h2>
+                <p>{{ event.description | nl2br }}</p>
+            </div>
+
+            <div class="event-detail-actions">
+                {% if alreadyReserved %}
+                    <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+                        <span style="background:#d1fae5; color:#065f46; padding:0.6rem 1.2rem; border-radius:8px; font-weight:600;">
+                            ✅ Vous avez déjà réservé cet événement
+                        </span>
+                        <a href="{{ path('app_my_reservations') }}" class="btn btn-outline">
+                            🎟️ Voir mes réservations
+                        </a>
+                    </div>
+                {% elseif event.availableSeats > 0 %}
+                    {% if app.user %}
+                        <a href="{{ path('app_events_reserve', {id: event.id}) }}"
+                           class="btn btn-primary btn-lg">🎟️ Réserver ma place</a>
+                    {% else %}
+                        <a href="{{ path('app_login') }}" class="btn btn-primary btn-lg">
+                            🔑 Se connecter pour réserver
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <button class="btn btn-disabled btn-lg" disabled>❌ Événement complet</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

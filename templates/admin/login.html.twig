@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin · Connexion · EventReserve</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+</head>
+<body class="admin-login-body">
+    <div class="admin-login-card">
+        <div class="admin-login-header">
+            <span class="admin-login-icon">🔐</span>
+            <h1>Espace Administrateur</h1>
+            <p>Connectez-vous pour gérer les événements.</p>
+        </div>
+
+        {% if error %}
+            <div class="alert alert-error">{{ error.messageKey | trans(error.messageData, 'security') }}</div>
+        {% endif %}
+
+        <form method="post" action="{{ path('admin_login') }}" class="auth-form">
+            <div class="form-group">
+                <label for="username">Identifiant</label>
+                <input type="text" id="username" name="username"
+                       value="{{ last_username }}" required autofocus
+                       class="form-input" placeholder="admin">
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password"
+                       required class="form-input" placeholder="••••••••">
+            </div>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <button type="submit" class="btn btn-primary btn-full">Se connecter</button>
+        </form>
+    </div>
+</body>
+</html>
