@@ -1,214 +1,88 @@
-# 🎟️ EventReserve — Application Web de Gestion de Réservations d'Événements
+# Mini Projet : Application Web de Gestion de Réservations d'Événements
 
-> **Mini Projet FIA3-GL** · ISSAT Sousse · Année universitaire 2025-2026
-
-Application web complète permettant aux utilisateurs de consulter des événements et de réserver en ligne, et à un administrateur de gérer les événements et les réservations via une interface sécurisée.
-
----
-
-## 📋 Technologies utilisées
-
-| Couche | Technologie |
-|--------|-------------|
-| **Backend** | Symfony 7 (PHP 8.2+) |
-| **Base de données** | PostgreSQL 15 |
-| **Authentification** | JWT (LexikJWTAuthenticationBundle) + Passkeys (WebAuthn/FIDO2) |
-| **Templating** | Twig 3 |
-| **Conteneurisation** | Docker + Docker Compose |
-| **Frontend** | HTML5, CSS3 Vanilla, JavaScript ES2022 |
-| **ORM** | Doctrine ORM 3 |
+**Projet développé dans le cadre du module FIA3-GL**
+**Institut Supérieur des Sciences Appliquées et de Technologie de Sousse (ISSAT Sousse)**
+**Département Informatique**
 
 ---
 
-## 🏗️ Architecture
+## 📋 Description du projet
+Cette application web complète permet à des utilisateurs de consulter des événements et de réserver leurs places en ligne. Elle intègre également un tableau de bord d'administration pour la gestion des événements et le suivi des réservations.
 
-```
-event-reservation/
-├── config/               # Configuration Symfony (security, doctrine, JWT...)
-├── migrations/           # Migrations SQL Doctrine
-├── public/               # Point d'entrée (index.php, CSS, JS, uploads)
-│   ├── css/
-│   │   ├── app.css       # Interface utilisateur
-│   │   └── admin.css     # Interface admin
-│   └── js/
-│       ├── app.js
-│       └── auth.js       # WebAuthn + JWT (Passkeys)
-├── src/
-│   ├── Controller/       # Contrôleurs utilisateur
-│   │   └── Admin/        # Contrôleurs admin
-│   ├── Entity/           # Entités Doctrine (User, Admin, Event, Reservation)
-│   ├── Repository/       # Repositories
-│   ├── Service/          # Services métier
-│   └── DataFixtures/     # Données de test
-├── templates/            # Templates Twig
-│   ├── admin/            # Vue admin
-│   ├── events/           # Vue événements
-│   ├── reservations/     # Confirmation
-│   └── security/         # Login / Register
-├── docker/               # Configuration Docker (Nginx)
-├── docker-compose.yml
-└── Dockerfile
-```
+L'objectif principal de ce projet est de mettre en œuvre des mécanismes de sécurité modernes et renforcés via une architecture **Stateless**. L'authentification est gérée par **Passkeys (WebAuthn)**, offrant une résistance au phishing et une connexion sans mot de passe via la biométrie (ou code PIN de l'appareil), couplée à la génération de **Tokens JWT** (JSON Web Tokens) pour l'autorisation des requêtes.
+
+## 🛠️ Technologies utilisées
+- **Backend Plateforme** : PHP 8.2 & Symfony 7
+- **Base de données** : PostgreSQL 15 (via Doctrine ORM)
+- **Authentification & Sécurité** :
+  - **Passkeys (WebAuthn)** : `web-auth/webauthn-lib` & `web-auth/symfony-bundle`
+  - **JWT** : `lexik/jwt-authentication-bundle` & `gesdinet/jwt-refresh-token-bundle`
+  - Hashage des mots de passe classique : `Argon2id`
+- **Frontend** : Twig, Vanilla JS (API `navigator.credentials`), CSS natif
+- **Administration** : EasyAdmin Bundle
+- **Infrastructure** : Docker & Docker Compose (Nginx, PHP-FPM, PostgreSQL)
 
 ---
 
-## ⚙️ Consignes d'installation
+## 🚀 Consignes d'installation (Docker)
 
-### Prérequis
+L'application est entièrement Dockerisée pour faciliter son déploiement. Assurez-vous d'avoir Docker et Docker Compose installés sur votre machine.
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) (v24+) ou Docker + Docker Compose
-- Git
-
-### 1. Cloner le dépôt
-
+### 1. Clonage du dépôt
 ```bash
-git clone https://github.com/VotreEquipe/MiniProjet2A-EventReservation-NomEquipe.git
-cd MiniProjet2A-EventReservation-NomEquipe
+git clone https://github.com/VOTRE_COMPTE/MiniProjet2A-EventReservation-VOTRE_EQUIPE.git
+cd MiniProjet2A-EventReservation-VOTRE_EQUIPE
+git checkout dev
 ```
 
-### 2. Générer les clés JWT RSA
-
-```bash
-mkdir -p config/jwt
-openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096
-openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout
-chmod 600 config/jwt/private.pem config/jwt/public.pem
-```
-
-> Notez la **passphrase** saisie — vous devrez la configurer dans la variable `JWT_PASSPHRASE`.
-
-### 3. Configurer les variables d'environnement
-
+### 2. Configuration de l'environnement
+Copiez le fichier d'exemple et configurez vos variables d'environnement si nécessaire (les valeurs par défaut conviennent au développement local) :
 ```bash
 cp .env .env.local
 ```
 
-Éditez `.env.local` et ajustez :
-
-```env
-JWT_PASSPHRASE=votre_passphrase_jwt
-APP_SECRET=une_chaine_aleatoire_longue
-```
-
-### 4. Lancer les conteneurs Docker
-
+### 3. Génération des clés JWT (Obligatoire)
+L'application utilise une paire de clés asymétriques RSA 4096 bits pour signer et vérifier les tokens JWT.
+Générez-les avec les commandes suivantes (via Git Bash ou Linux) :
 ```bash
-docker compose up -d --build
+mkdir -p config/jwt
+openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096 -pass pass:your_jwt_passphrase
+openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout -passin pass:your_jwt_passphrase
+chmod 600 config/jwt/private.pem config/jwt/public.pem
 ```
+*(Assurez-vous que la passphrase utilisée correspond à la variable `JWT_PASSPHRASE` dans votre fichier `.env.local`)*
 
-Attendre que la base de données soit prête (~15 secondes), puis :
-
+### 4. Démarrage des conteneurs
 ```bash
-# Exécuter les migrations
-docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
-
-# Charger les données de démo (admin + 3 événements)
-docker compose exec php php bin/console doctrine:fixtures:load --no-interaction
-```
-
-### 5. Accéder à l'application
-
-| URL | Description |
-|-----|-------------|
-| http://localhost:8080 | Application utilisateur |
-| http://localhost:8080/admin | Interface administrateur |
-| http://localhost:8080/events | Liste des événements |
-
-### 6. Identifiants par défaut
-
-| Rôle | Identifiant | Mot de passe |
-|------|-------------|--------------|
-| Admin | `admin` | `Admin@1234` |
-
-> **Note Passkeys** : Pour tester les Passkeys/WebAuthn, vous devez utiliser HTTPS ou `localhost`. La fonctionnalité est désactivée sur les IPs publiques non sécurisées.
-
----
-
-## 🔐 Architecture d'authentification (JWT + Passkeys)
-
-### Flux JWT (mot de passe)
-
-```
-1. POST /api/login          → {username, password}
-2. Réponse                  → {token, refresh_token}
-3. Requêtes API             → Authorization: Bearer <token>
-4. POST /api/token/refresh  → Renouveler le token
-```
-
-### Flux Passkeys (WebAuthn)
-
-```
-1. POST /api/auth/register/options  → challenge WebAuthn (création)
-2. navigator.credentials.create()  → Biométrie / PIN utilisateur
-3. POST /api/auth/register/verify   → Attestation → JWT généré
-4. POST /api/auth/login/options     → challenge WebAuthn (assertion)
-5. navigator.credentials.get()     → Signature biométrique
-6. POST /api/auth/login/verify      → Vérification → JWT généré
-```
-
----
-
-## 🐳 Commandes Docker utiles
-
-```bash
-# Démarrer les services
 docker compose up -d
-
-# Arrêter les services
-docker compose down
-
-# Voir les logs PHP
-docker compose logs -f php
-
-# Accès shell PHP
-docker compose exec php bash
-
-# Créer une migration
-docker compose exec php php bin/console make:migration
-
-# Vider le cache
-docker compose exec php php bin/console cache:clear
 ```
 
----
-
-## 🧪 Tests
-
+### 5. Installation des dépendances et Base de données
+Une fois les conteneurs lancés, exécutez les commandes suivantes depuis le conteneur PHP :
 ```bash
-# Lancer tous les tests PHPUnit
-docker compose exec php php bin/phpunit
+# Installation des dépendances vendor
+docker compose exec php composer install
 
-# Tests d'un contrôleur spécifique
-docker compose exec php php bin/phpunit --filter SecurityControllerTest
+# Création de la base de données et exécution des migrations
+docker compose exec php php bin/console doctrine:database:create --if-not-exists
+docker compose exec php php bin/console doctrine:migrations:migrate -n
+
+# Chargement du jeu de données initial (Fixtures : Admin, Événements de test)
+docker compose exec php php bin/console doctrine:fixtures:load -n
 ```
 
----
-
-## 📁 Branches Git
-
-| Branche | Description |
-|---------|-------------|
-| `main` | Code stable et validé |
-| `dev` | Intégration et tests |
-| `feature/auth` | Authentification JWT + Passkeys |
-| `feature/events` | Gestion des événements |
-| `feature/admin` | Interface administrateur |
-| `feature/docker` | Configuration Docker |
+### 6. Accès à l'application
+- **Espace Public / Utilisateurs** : `http://localhost:8080`
+- **Espace Administrateur** : `http://localhost:8080/admin`
+  - *Identifiant défaut* : `admin`
+  - *Mot de passe défaut* : `admin`
 
 ---
 
-## 👥 Membres de l'équipe
-
-| Nom | Rôle |
-|-----|------|
-|eya thebty| Développeur Full-Stack |
+## 👥 Identités des membres de l'équipe
+- **[Votre Nom & Prénom]** - *Rôle / Contribution*
+- *(Ajoutez les autres membres si applicable)*
 
 ---
 
-## 📚 Ressources
-
-- [Documentation Symfony 7](https://symfony.com/doc/7.0/)
-- [LexikJWT Bundle](https://github.com/lexik/LexikJWTAuthenticationBundle)
-- [WebAuthn Level 2 (W3C)](https://www.w3.org/TR/webauthn-2/)
-- [FIDO2 / Passkeys](https://fidoalliance.org/passkeys/)
-- [Docker Documentation](https://docs.docker.com/)
+*Projet réalisé pour l'année universitaire 2025/2026 - Rendu fin Février 2026*
