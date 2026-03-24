@@ -77,12 +77,3 @@ docker compose exec php php bin/console doctrine:fixtures:load -n
   - *Identifiant défaut* : `admin`
   - *Mot de passe défaut* : `admin`
 
----
-
-## 👥 Identités des membres de l'équipe
-- **[Votre Nom & Prénom]** - *Rôle / Contribution*
-- *(Ajoutez les autres membres si applicable)*
-
----
-
-*Projet réalisé pour l'année universitaire 2025/2026 - Rendu fin Février 2026*
