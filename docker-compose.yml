@@ -13,7 +13,7 @@ services:
       DATABASE_URL: postgresql://app_user:app_password@db:5432/event_reservation?serverVersion=15&charset=utf8
       JWT_SECRET_KEY: /var/www/config/jwt/private.pem
       JWT_PUBLIC_KEY: /var/www/config/jwt/public.pem
-      JWT_PASSPHRASE: ${JWT_PASSPHRASE:-change_me_in_production}
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE:-mypassphrase}
       JWT_TOKEN_TTL: 3600
       APP_DOMAIN: ${APP_DOMAIN:-localhost}
       WEBAUTHN_RP_NAME: "Event Reservation App"
